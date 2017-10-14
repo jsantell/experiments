@@ -1,0 +1,29 @@
+{
+  "name": "experiments",
+  "version": "1.0.0",
+  "description": "audio/VR/AR/GL experiments for the web.",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsantell/experiments.git"
+  },
+  "author": "Jordan Santell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jsantell/experiments/issues"
+  },
+  "homepage": "https://github.com/jsantell/experiments#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-latest": "^6.24.1",
+    "html-webpack-plugin": "^2.30.1",
+    "webpack": "^3.7.1",
+    "webpack-dev-server": "^2.9.1"
+  },
+  "dependencies": {}
+}

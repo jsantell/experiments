@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serf;
+  color: white;
+}
+
+#info {
+  height: 20px;
+  background-color: rgba(50, 50, 50, 0.5);
+  position: fixed;
+  left: 0;
+  bottom: 0;
+}
+
+.experiment-number {
+  font-weight: 700;
+  font-size: 110%;
+}
+
+.experiment-number:after {
+  content: ':';
+}
+
+.experiment-name {
+  font-weight: 300;
+  font-size: 110%;
+}

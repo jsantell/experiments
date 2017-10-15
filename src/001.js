@@ -50,9 +50,9 @@ class Experiment001 extends App {
 
     this.composer = new WAGNER.Composer(this.renderer);
     this.pass = new BloomPass({
-      zoomBlurStrength: 0.1,
+      zoomBlurStrength: 1.0,
       applyZoomBlur: true,
-      blurAmount: 0.2,
+      blurAmount: 5,
     });
   }
 

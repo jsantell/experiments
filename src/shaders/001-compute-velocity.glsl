@@ -20,7 +20,7 @@ void main() {
   vel *= 0.9;
 
   float mod = sin(time * 0.0001);
-  vel += -pos * 5.0 * snoise3(pos*mod+5.0);
+  vel += -pos * 15.0 * snoise3(pos*mod+5.0);
   if (length(pos) > max) {
     vel = (center - pos) * 0.05;
   }

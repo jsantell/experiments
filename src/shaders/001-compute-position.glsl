@@ -1,20 +1,17 @@
 uniform float delta;
-#pragma glslify: snoise3 = require(glsl-noise/simplex/3d) 
-#pragma glslify: cnoise3 = require(glsl-noise/classic/3d) 
-#
+
 void main() {
   vec2 uv = gl_FragCoord.xy / resolution.xy;
-  vec4 tmpPos = texture2D(tPosition, uv);
-  vec3 pos = tmpPos.xyz;
-  vec4 tmpVel = texture2D(tVelocity, uv );
+  vec3 pos = texture2D(tPosition, uv).xyz;
+  vec4 tmpVel = texture2D(tVelocity, uv);
   vec3 vel = tmpVel.xyz;
   float mass = tmpVel.w;
 
-  if ( mass == 0.0 ) {
-    vel = vec3( 0.0 );
+  if (mass == 0.0) {
+    vel = vec3(0.0);
   }
 
-  pos += vel * (delta / 1000.0);
+  pos += vel * (delta / 1000.0) * mass;
 
   if (length(pos) > 2.5) {
     pos = vec3(0.0);

@@ -7,9 +7,6 @@ import computePositionShader from './shaders/001-compute-position.glsl';
 import computeVelocityShader from './shaders/001-compute-velocity.glsl';
 import WAGNER from '@alex_toudic/wagner';
 import BloomPass from '@alex_toudic/wagner/src/passes/bloom/MultiPassBloomPass';
-import GodRayPass from '@alex_toudic/wagner/src/passes/godray/godraypass';
-import DOFPass from '@alex_toudic/wagner/src/passes/dof/DOFPass';
-
 
 const scale = 1000;
 const size = 1;
@@ -50,7 +47,7 @@ class Experiment001 extends App {
 
     this.composer = new WAGNER.Composer(this.renderer);
     this.pass = new BloomPass({
-      zoomBlurStrength: 1.0,
+      zoomBlurStrength: 0.5,
       applyZoomBlur: true,
       blurAmount: 5,
     });
@@ -125,14 +122,17 @@ class Experiment001 extends App {
     let geoPos = this.geometry.getAttribute('position');
 
     for (let i = 0; i < positionData.length; i += 4) {
-      if (posCount >= geoPos.count * 3) {
+      if (i / 4 >= geoPos.count) {
         positionData[i] = positionData[i + 1] = positionData[i + 2] = positionData[i + 3] = 0;
         velocityData[i] = velocityData[i + 1] = velocityData[i + 2] = velocityData[i + 3] = 0;
       } else {
+        /*
+        // Initial position from buffer geometry
         positionData[i]     = geoPos.array[posCount++];
         positionData[i + 1] = geoPos.array[posCount++];
         positionData[i + 2] = geoPos.array[posCount++];
         positionData[i + 3] = 1;
+        */
 
         let theta = Math.random() * Math.PI * 2;
         let phi = (Math.random() * Math.PI) - (Math.PI/2);
@@ -145,7 +145,7 @@ class Experiment001 extends App {
         velocityData[i] = Math.random()*2 - 1;
         velocityData[i + 1] = Math.random()*2 - 1;
         velocityData[i + 2] = Math.random()*2-1;
-        velocityData[i + 3] = Math.random()*5;
+        velocityData[i + 3] = 1;
       }
     }
   }

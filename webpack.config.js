@@ -15,7 +15,8 @@ Object.keys(experiments).map(id => {
     title: experiments[id].title || 'untitled',
     subtitle: experiments[id].subtitle || '',
     template: './src/templates/markup.ejs',
-    filename: `${id}/index.html`
+    filename: `${id}/index.html`,
+    inject: false,
   }));
 });
 
@@ -23,7 +24,7 @@ module.exports = {
   entry: data.entries,
   output: {
     path: path.join(__dirname, 'public'),
-    publicPath: '/',
+    publicPath: '',
     libraryTarget: 'umd',
     library: 'app',
     filename: '[name]/bundle.js'
@@ -33,7 +34,7 @@ module.exports = {
       { test: /\.js/, exclude: /node_modules/, use: ['babel-loader'] },
       {
         test: /\.(glsl|frag|vert)$/,
-        exclude: /node_modules/,
+        // exclude: /node_modules/,
         use: ['raw-loader', 'glslify-loader']
       },
     ]

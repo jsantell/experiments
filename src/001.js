@@ -5,12 +5,17 @@ import vertexShader from './shaders/001-vert.glsl';
 import fragmentShader from './shaders/001-frag.glsl';
 import computePositionShader from './shaders/001-compute-position.glsl';
 import computeVelocityShader from './shaders/001-compute-velocity.glsl';
+import WAGNER from '@alex_toudic/wagner';
+import BloomPass from '@alex_toudic/wagner/src/passes/bloom/MultiPassBloomPass';
+import GodRayPass from '@alex_toudic/wagner/src/passes/godray/godraypass';
+import DOFPass from '@alex_toudic/wagner/src/passes/dof/DOFPass';
+
 
 const scale = 1000;
-const size = 2;
+const size = 1;
 class Experiment001 extends App {
   init() {
-    this.renderer.setClearColor(0x333333);
+    this.renderer.setClearColor(0x111111);
     this.material = new ShaderMaterial({
       uniforms: {
         size: { value: size },
@@ -41,7 +46,14 @@ class Experiment001 extends App {
     this.pivot.add(this.camera);
     this.scene.add(this.mesh);
     this.scene.add(this.pivot);
-    this.camera.position.set(0, 0, 3);
+    this.camera.position.set(0, 0, 4);
+
+    this.composer = new WAGNER.Composer(this.renderer);
+    this.pass = new BloomPass({
+      zoomBlurStrength: 0.2,
+      applyZoomBlur: true,
+      blurAmount: 0.2,
+    });
   }
 
   getTextureSize() {
@@ -120,7 +132,7 @@ class Experiment001 extends App {
         positionData[i + 1] = geoPos.array[posCount++];
         positionData[i + 2] = geoPos.array[posCount++];
         positionData[i + 3] = 1;
-      
+
         let theta = Math.random() * Math.PI * 2;
         let phi = (Math.random() * Math.PI) - (Math.PI/2);
         let r = Math.random() * 1.5;
@@ -148,7 +160,11 @@ class Experiment001 extends App {
     this.gpu.compute();
     this.material.uniforms.tPosition.value = this.gpu.getCurrentRenderTarget(this.posVar).texture;
     this.material.uniforms.tVelocity.value = this.gpu.getCurrentRenderTarget(this.velVar).texture;
-    this.renderer.render(this.scene, this.camera);
+    this.composer.reset();
+    this.composer.render(this.scene, this.camera);
+    this.composer.pass(this.pass);
+    this.composer.toScreen();
+    // this.renderer.render(this.scene, this.camera);
   }
 }
 

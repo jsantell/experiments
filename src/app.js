@@ -29,20 +29,23 @@ export default class App {
 
     this.init();
 
+    this._lastTick = 0;
     this.onTick = this.onTick.bind(this);
     requestAnimationFrame(this.onTick);
   }
 
   onTick() {
     const t = performance.now();
+    const delta = performance.now() - this._lastTick;
     if (this.stats) {
       this.stats.begin();
     }
-    this.update(t);
-    this.render(t);
+    this.update(t, delta);
+    this.render(t, delta);
     if (this.stats) {
       this.stats.end();
     }
+    this._lastTick = t;
     requestAnimationFrame(this.onTick);
   }
 

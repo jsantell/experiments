@@ -1,4 +1,4 @@
-#define delta ( 1.0 / 60.0 )
+uniform float delta;
 #pragma glslify: snoise3 = require(glsl-noise/simplex/3d) 
 #pragma glslify: cnoise3 = require(glsl-noise/classic/3d) 
 #
@@ -14,7 +14,7 @@ void main() {
     vel = vec3( 0.0 );
   }
 
-  pos += vel * delta;
+  pos += vel * (delta / 1000.0);
 
   if (length(pos) > 2.5) {
     pos = vec3(0.0);

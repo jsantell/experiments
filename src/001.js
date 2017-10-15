@@ -50,7 +50,7 @@ class Experiment001 extends App {
 
     this.composer = new WAGNER.Composer(this.renderer);
     this.pass = new BloomPass({
-      zoomBlurStrength: 0.2,
+      zoomBlurStrength: 0.1,
       applyZoomBlur: true,
       blurAmount: 0.2,
     });
@@ -107,6 +107,7 @@ class Experiment001 extends App {
     this.gpu.setVariableDependencies(this.velVar, [this.velVar, this.posVar]);
     this.gpu.setVariableDependencies(this.posVar, [this.velVar, this.posVar]);
     this.velVar.material.uniforms.time = { value: 0.0 };
+    this.posVar.material.uniforms.delta = { value: 0.0 };
 
     const error = this.gpu.init();
     if (error) {
@@ -149,10 +150,11 @@ class Experiment001 extends App {
     }
   }
 
-  update(t) {
+  update(t, delta) {
     this.pivot.rotation.y = t * 0.0001;
     this.material.uniforms.time.value = t;
     this.velVar.material.uniforms.time.value = t;
+    this.posVar.material.uniforms.delta.value = delta;
   }
 
   render() {

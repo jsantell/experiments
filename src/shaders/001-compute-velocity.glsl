@@ -19,12 +19,10 @@ void main() {
   // decay
   vel *= 0.9;
 
-  float mod = sin(time * 0.001);
-  vel += -pos * 30.0 * snoise3(pos*mod+5.0);//vec3(time/100000.0));//-pos * 10.5 * snoise3(pos);
-  //vel += -pos * 2.0 * pnoise3(vel, vec3(time/100000.0));//-pos * 10.5 * snoise3(pos);
-  // vel= (vel + gravity) * mass;
-  if (length(tmpPos) > max) {
-    vel = (center - pos) * 1.7;
+  float mod = sin(time * 0.0001);
+  vel += -pos * 5.0 * snoise3(pos*mod+5.0);
+  if (length(pos) > max) {
+    vel = (center - pos) * 0.05;
   }
   gl_FragColor = vec4(vel, mass);
 }

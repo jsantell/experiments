@@ -2,14 +2,15 @@
 <html>
 <head>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-  <title>Experiment <%= htmlWebpackPlugin.options.id %>: <%= htmlWebpackPlugin.options.name %></title>
+  <title>Experiment <%= htmlWebpackPlugin.options.id %>: <%= htmlWebpackPlugin.options.title %></title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
   <link href="../styles/experiments.css" rel="stylesheet">
 </head>
 <body>
   <div id="info">
     <span class="experiment-number">Experiment <%= htmlWebpackPlugin.options.id %></span>
-    <span class="experiment-name"><%= htmlWebpackPlugin.options.name %></span>
+    <span class="experiment-title"><%= htmlWebpackPlugin.options.title %></span>
+    <span class="experiment-subtitle"><%= htmlWebpackPlugin.options.subtitle%></span>
   </div>
   <script src="../scripts/three.min.js"></script>
 </body>

@@ -1,7 +1,8 @@
 {
   "experiments": {
     "001": {
-      "name": "Audio Thing"
+      "title": "Energy",
+      "subtitle": "1 Million Particles"
     }
   }
 }

@@ -6,23 +6,37 @@ body {
 }
 
 #info {
-  height: 20px;
-  background-color: rgba(50, 50, 50, 0.5);
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
   position: fixed;
   left: 0;
   bottom: 0;
+  font-size: 120%;
 }
 
 .experiment-number {
-  font-weight: 700;
-  font-size: 110%;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .experiment-number:after {
   content: ':';
 }
 
-.experiment-name {
+.experiment-title {
   font-weight: 300;
-  font-size: 110%;
+  text-transform: uppercase;
+}
+
+.experiment-subtitle {
+  margin-top: 3px;
+  text-transform: lowercase;
+  font-weight: 300;
+  font-size: 70%;
+  color: #ccc;
+  display: block;
+}
+
+.experiment-subtitle:before {
+  content: '>';
 }

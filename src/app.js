@@ -1,7 +1,19 @@
 import { WebGLRenderer, PerspectiveCamera, Scene } from 'three';
+import Stats from 'stats.js';
 
 export default class App {
   constructor() {
+    if (window.location.search) {
+      const params = window.location.search.substr(1).split('&');
+      for (let param of params) {
+        let [prop, value] = param.split('=');
+        if (prop === 'debug') {
+          this.stats = new Stats();
+          this.stats.showPanel(0);
+          document.body.appendChild(this.stats.dom);
+        }
+      }
+    }
     this.renderer = new WebGLRenderer();
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -23,9 +35,15 @@ export default class App {
 
   onTick() {
     const t = performance.now();
+    if (this.stats) {
+      this.stats.begin();
+    }
     this.update(t);
-    requestAnimationFrame(this.onTick);
     this.render(t);
+    if (this.stats) {
+      this.stats.end();
+    }
+    requestAnimationFrame(this.onTick);
   }
 
   getAspect() {

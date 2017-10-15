@@ -12,7 +12,8 @@ Object.keys(experiments).map(id => {
   data.entries[id] = `./src/${id}.js`;
   data.html.push(new html({
     id: id,
-    name: experiments[id].name || 'untitled',
+    title: experiments[id].title || 'untitled',
+    subtitle: experiments[id].subtitle || '',
     template: './src/templates/markup.ejs',
     filename: `${id}/index.html`
   }));

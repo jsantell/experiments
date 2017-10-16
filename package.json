@@ -1,6 +1,7 @@
 {
-  "name": "experiments",
+  "name": "@jsantell/experiments",
   "version": "1.0.0",
+  "private": true,
   "description": "audio/VR/AR/GL experiments for the web.",
   "main": "index.js",
   "scripts": {

@@ -9,7 +9,7 @@ const data = {
   html: [],
 };
 Object.keys(experiments).map(id => {
-  data.entries[id] = `./src/${id}.js`;
+  data.entries[id] = `./src/${id}/index.js`;
   data.html.push(new html({
     id: id,
     title: experiments[id].title || 'untitled',

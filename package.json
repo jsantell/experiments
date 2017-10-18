@@ -22,6 +22,7 @@
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-latest": "^6.24.1",
+    "glsl-conditionals": "^1.0.0",
     "glsl-hsl2rgb": "^1.1.0",
     "glsl-hsv2rgb": "^1.0.0",
     "glsl-map": "^1.0.1",

@@ -1,6 +1,7 @@
 uniform float time;
 
-#pragma glslify: snoise3 = require(glsl-noise/simplex/3d) 
+#pragma glslify: snoise3 = require(glsl-noise/simplex/3d)
+#pragma glslify: when_gt = require(glsl-conditionals/when_gt)
 
 const float max = 1.5;
 
@@ -16,8 +17,9 @@ void main() {
 
   float mod = sin(time * 0.0001);
   vel += -pos * 15.0 * snoise3(pos*mod+5.0);
-  if (length(pos) > max) {
-    vel = -pos * 0.15;
-  }
+
+  float outOfBounds = when_gt(length(pos), max);
+  vel = (outOfBounds * -pos * 0.15) + ((1.0 - outOfBounds) * vel);
+
   gl_FragColor = vec4(vel, mass);
 }

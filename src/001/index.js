@@ -1,10 +1,10 @@
 import { SphereBufferGeometry, TextureLoader, AdditiveBlending, BufferAttribute, Points, Mesh, Object3D, ShaderMaterial, BoxBufferGeometry } from 'three';
 import App from '../app';
 import GPUComputationRenderer from '../lib/GPUComputationRenderer';
-import vertexShader from './001-vert.glsl';
-import fragmentShader from './001-frag.glsl';
-import computePositionShader from './001-compute-position.glsl';
-import computeVelocityShader from './001-compute-velocity.glsl';
+import vertexShader from './vert.glsl';
+import fragmentShader from './frag.glsl';
+import computePositionShader from './compute-position.glsl';
+import computeVelocityShader from './compute-velocity.glsl';
 import WAGNER from '@alex_toudic/wagner';
 import BloomPass from '@alex_toudic/wagner/src/passes/bloom/MultiPassBloomPass';
 

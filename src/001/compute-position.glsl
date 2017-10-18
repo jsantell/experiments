@@ -9,7 +9,7 @@ void main() {
   vec3 vel = tmpVel.xyz;
   float mass = tmpVel.w;
 
-  pos += vel * (delta / 1000.0) * mass;
+  pos += vel * delta * mass;
 
   pos *= when_lt(length(pos), 2.5);
 

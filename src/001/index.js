@@ -65,7 +65,6 @@ class Experiment001 extends App {
   }
 
   setupGeometry() {
-    // this.geometry = new BoxBufferGeometry(3,3,3, scale, scale, scale);
     this.geometry = new SphereBufferGeometry(3,scale, scale);
 
     const verticesCount = this.geometry.getAttribute('position').count;
@@ -154,7 +153,7 @@ class Experiment001 extends App {
     this.pivot.rotation.y = t * 0.0001;
     this.material.uniforms.time.value = t;
     this.velVar.material.uniforms.time.value = t;
-    this.posVar.material.uniforms.delta.value = delta;
+    this.posVar.material.uniforms.delta.value = delta / 1000;
   }
 
   render() {

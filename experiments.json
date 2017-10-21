@@ -2,7 +2,10 @@
   "experiments": {
     "001": {
       "title": "Energy",
-      "subtitle": "1 Million Particles"
+      "subtitle": "1 Million Particles",
+      "dependencies": [
+        { "name": "three" }
+      ]
     }
   }
 }

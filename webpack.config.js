@@ -10,14 +10,18 @@ const data = {
 };
 Object.keys(experiments).map(id => {
   data.entries[id] = `./src/${id}/index.js`;
-  data.html.push(new html({
+
+  const meta = experiments[id];
+  const config = Object.assign({
+    title: 'untitled',
+    subtitle: '',
+    template: './src/templates/index.hbs',
     id: id,
-    title: experiments[id].title || 'untitled',
-    subtitle: experiments[id].subtitle || '',
-    template: './src/templates/markup.ejs',
     filename: `${id}/index.html`,
     inject: false,
-  }));
+  }, meta);
+
+  data.html.push(new html(config));
 });
 
 module.exports = {
@@ -32,6 +36,7 @@ module.exports = {
   module: {
     rules: [
       { test: /\.js/, exclude: /node_modules/, use: ['babel-loader'] },
+      { test: /\.hbs/, exclude: /node_modules/, use: ['handlebars-loader'] },
       {
         test: /\.(glsl|frag|vert)$/,
         // exclude: /node_modules/,

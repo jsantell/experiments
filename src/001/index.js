@@ -1,5 +1,5 @@
 import { SphereBufferGeometry, TextureLoader, AdditiveBlending, BufferAttribute, Points, Mesh, Object3D, ShaderMaterial, BoxBufferGeometry } from 'three';
-import App from '../app';
+import ThreeApp from '../ThreeApp';
 import GPUComputationRenderer from '../lib/GPUComputationRenderer';
 import vertexShader from './vert.glsl';
 import fragmentShader from './frag.glsl';
@@ -10,7 +10,7 @@ import BloomPass from '@alex_toudic/wagner/src/passes/bloom/MultiPassBloomPass';
 
 const scale = 1000;
 const size = 1;
-class Experiment001 extends App {
+class Experiment001 extends ThreeApp {
   init() {
     this.renderer.setClearColor(0x111111);
     this.material = new ShaderMaterial({

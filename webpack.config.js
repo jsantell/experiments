@@ -51,6 +51,13 @@ module.exports = {
       amd: 'three',
       root: 'THREE',
     },
+    tween: {
+      commonjs: 'tween',
+      commonjs2: 'tween',
+      amd: 'tween',
+      root: 'TWEEN',
+    },
+    'dat.gui': 'dat',
   },
   resolve: {
     extensions: ['.js']

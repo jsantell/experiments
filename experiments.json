@@ -6,6 +6,13 @@
       "dependencies": [
         { "name": "three" }
       ]
+    },
+    "002": {
+      "title": "Slinky",
+      "subtitle": "Exploration of splines",
+      "dependencies": [
+        { "name": "three" }
+      ]
     }
   }
 }

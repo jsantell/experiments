@@ -5,7 +5,7 @@ import BloomPass from '@alex_toudic/wagner/src/passes/bloom/MultiPassBloomPass';
 
 const count = 400;
 const points = 100;
-class Experiment002 extends ThreeApp {
+class Experiment extends ThreeApp {
   init() {
     this.renderer.setClearColor(0x111111);
     this.curves = [];
@@ -63,4 +63,4 @@ class Experiment002 extends ThreeApp {
   }
 }
 
-export default new Experiment002();
+export default new Experiment();

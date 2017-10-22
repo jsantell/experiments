@@ -10,7 +10,7 @@ import BloomPass from '@alex_toudic/wagner/src/passes/bloom/MultiPassBloomPass';
 
 const scale = 1000;
 const size = 1;
-class Experiment001 extends ThreeApp {
+class Experiment extends ThreeApp {
   init() {
     this.renderer.setClearColor(0x111111);
     this.material = new ShaderMaterial({
@@ -169,4 +169,4 @@ class Experiment001 extends ThreeApp {
   }
 }
 
-export default new Experiment001();
+export default new Experiment();

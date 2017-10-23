@@ -957,16 +957,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var count = 400;
 var points = 100;
 
-var Experiment002 = function (_ThreeApp) {
-  _inherits(Experiment002, _ThreeApp);
+var Experiment = function (_ThreeApp) {
+  _inherits(Experiment, _ThreeApp);
 
-  function Experiment002() {
-    _classCallCheck(this, Experiment002);
+  function Experiment() {
+    _classCallCheck(this, Experiment);
 
-    return _possibleConstructorReturn(this, (Experiment002.__proto__ || Object.getPrototypeOf(Experiment002)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (Experiment.__proto__ || Object.getPrototypeOf(Experiment)).apply(this, arguments));
   }
 
-  _createClass(Experiment002, [{
+  _createClass(Experiment, [{
     key: 'init',
     value: function init() {
       this.renderer.setClearColor(0x111111);
@@ -1027,10 +1027,10 @@ var Experiment002 = function (_ThreeApp) {
     }
   }]);
 
-  return Experiment002;
+  return Experiment;
 }(_ThreeApp3.default);
 
-exports.default = new Experiment002();
+exports.default = new Experiment();
 
 /***/ })
 /******/ ]);

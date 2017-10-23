@@ -13,6 +13,14 @@
       "dependencies": [
         { "name": "three" }
       ]
+    },
+    "003": {
+      "title": "rubix",
+      "subtitle": "three degrees of freedom",
+      "dependencies": [
+        { "name": "three" },
+        { "name": "tween" }
+      ]
     }
   }
 }

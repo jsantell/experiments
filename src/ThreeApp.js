@@ -3,6 +3,7 @@ import Stats from 'stats.js';
 
 export default class App {
   constructor() {
+
     if (window.location.search) {
       const params = window.location.search.substr(1).split('&');
       for (let param of params) {
@@ -29,14 +30,14 @@ export default class App {
 
     this.init();
 
-    this._lastTick = 0;
+    this.lastTick = 0;
     this.onTick = this.onTick.bind(this);
     requestAnimationFrame(this.onTick);
   }
 
   onTick() {
     const t = performance.now();
-    const delta = performance.now() - this._lastTick;
+    const delta = performance.now() - this.lastTick;
     if (this.stats) {
       this.stats.begin();
     }
@@ -45,7 +46,7 @@ export default class App {
     if (this.stats) {
       this.stats.end();
     }
-    this._lastTick = t;
+    this.lastTick = t;
     requestAnimationFrame(this.onTick);
   }
 

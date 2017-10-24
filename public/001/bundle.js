@@ -128,8 +128,30 @@ module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\n\nvoid main() {\n\n  vUv
 "use strict";
 
 
-module.exports.Composer = __webpack_require__(4);
-module.exports.CopyPass = __webpack_require__(5);
+var Pass = __webpack_require__(1);
+var vertex = __webpack_require__(2);
+var fragment = __webpack_require__(9);
+
+function CopyPass() {
+  Pass.call(this);
+  this.setShader(vertex, fragment);
+}
+
+module.exports = CopyPass;
+
+CopyPass.prototype = Object.create(Pass.prototype);
+CopyPass.prototype.constructor = CopyPass;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports.Composer = __webpack_require__(5);
+module.exports.CopyPass = __webpack_require__(3);
 module.exports.BlendMode = {
   Normal: 1,
   Dissolve: 2, // UNAVAILABLE
@@ -158,14 +180,14 @@ module.exports.BlendMode = {
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var THREE = __webpack_require__(0);
-var CopyPass = __webpack_require__(5);
+var CopyPass = __webpack_require__(3);
 var Stack = __webpack_require__(10);
 var Pass = __webpack_require__(1);
 
@@ -297,28 +319,6 @@ Composer.prototype.setSize = function(w, h) {
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Pass = __webpack_require__(1);
-var vertex = __webpack_require__(2);
-var fragment = __webpack_require__(9);
-
-function CopyPass() {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
-}
-
-module.exports = CopyPass;
-
-CopyPass.prototype = Object.create(Pass.prototype);
-CopyPass.prototype.constructor = CopyPass;
-
-
-/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -398,7 +398,7 @@ var App = function () {
 
     this.init();
 
-    this._lastTick = 0;
+    this.lastTick = 0;
     this.onTick = this.onTick.bind(this);
     requestAnimationFrame(this.onTick);
   }
@@ -407,7 +407,7 @@ var App = function () {
     key: 'onTick',
     value: function onTick() {
       var t = performance.now();
-      var delta = performance.now() - this._lastTick;
+      var delta = performance.now() - this.lastTick;
       if (this.stats) {
         this.stats.begin();
       }
@@ -416,7 +416,7 @@ var App = function () {
       if (this.stats) {
         this.stats.end();
       }
-      this._lastTick = t;
+      this.lastTick = t;
       requestAnimationFrame(this.onTick);
     }
   }, {
@@ -642,8 +642,8 @@ Stack.prototype.getPasses = function() {
 
 var THREE = __webpack_require__(0);
 var Pass = __webpack_require__(1);
-var Composer = __webpack_require__(4);
-var BlendMode = __webpack_require__(3).BlendMode;
+var Composer = __webpack_require__(5);
+var BlendMode = __webpack_require__(4).BlendMode;
 var FullBoxBlurPass = __webpack_require__(12);
 var BlendPass = __webpack_require__(15);
 var ZoomBlurPass = __webpack_require__(17);
@@ -952,7 +952,7 @@ var _computeVelocity = __webpack_require__(26);
 
 var _computeVelocity2 = _interopRequireDefault(_computeVelocity);
 
-var _wagner = __webpack_require__(3);
+var _wagner = __webpack_require__(4);
 
 var _wagner2 = _interopRequireDefault(_wagner);
 
@@ -1521,7 +1521,7 @@ module.exports = "#define GLSLIFY 1\nuniform float delta;\n\nfloat when_lt_1_0(f
 /* 26 */
 /***/ (function(module, exports) {
 
-module.exports = "#define GLSLIFY 1\nuniform float time;\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_0(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_0(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_1(vec4 x) {\n     return mod289_1_0(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_2(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_3(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_4 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_5 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_5;\n  vec3 i1 = min( g_1_5.xyz, l.zxy );\n  vec3 i2 = max( g_1_5.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_4.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_0(i);\n  vec4 p = permute_1_1( permute_1_1( permute_1_1(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_4.wyz - D_1_4.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_6 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_7 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_6.xy,h.z);\n  vec3 p3 = vec3(a1_1_6.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_2(vec4(dot(p0_1_7,p0_1_7), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_7 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_7,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\nfloat when_gt_2_8(float x, float y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec2 when_gt_2_8(vec2 x, vec2 y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec3 when_gt_2_8(vec3 x, vec3 y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec4 when_gt_2_8(vec4 x, vec4 y) {\n  return max(sign(x - y), 0.0);\n}\n\n\n\n\nconst float max = 1.5;\n\nvoid main() {\n  vec2 uv = gl_FragCoord.xy / resolution.xy;\n  vec3 pos = texture2D(tPosition, uv).xyz;\n  vec4 tmpVel = texture2D(tVelocity, uv);\n  vec3 vel = tmpVel.xyz;\n  float mass = tmpVel.w;\n\n  // decay\n  vel *= 0.9;\n\n  float mod = sin(time * 0.0001);\n  vel += -pos * 15.0 * snoise_1_3(pos*mod+5.0);\n\n  float outOfBounds = when_gt_2_8(length(pos), max);\n  vel = (outOfBounds * -pos * 0.15) + ((1.0 - outOfBounds) * vel);\n\n  gl_FragColor = vec4(vel, mass);\n}\n"
+module.exports = "#define GLSLIFY 1\nuniform float time;\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_2_0(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_2_0(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_2_1(vec4 x) {\n     return mod289_2_0(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_2_2(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_2_3(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_2_4 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_2_5 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_2_5;\n  vec3 i1 = min( g_2_5.xyz, l.zxy );\n  vec3 i2 = max( g_2_5.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_2_4.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_2_0(i);\n  vec4 p = permute_2_1( permute_2_1( permute_2_1(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_2_4.wyz - D_2_4.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_2_6 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_2_7 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_2_6.xy,h.z);\n  vec3 p3 = vec3(a1_2_6.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_2_2(vec4(dot(p0_2_7,p0_2_7), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_2_7 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_2_7,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\nfloat when_gt_1_8(float x, float y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec2 when_gt_1_8(vec2 x, vec2 y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec3 when_gt_1_8(vec3 x, vec3 y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec4 when_gt_1_8(vec4 x, vec4 y) {\n  return max(sign(x - y), 0.0);\n}\n\n\n\n\nconst float max = 1.5;\n\nvoid main() {\n  vec2 uv = gl_FragCoord.xy / resolution.xy;\n  vec3 pos = texture2D(tPosition, uv).xyz;\n  vec4 tmpVel = texture2D(tVelocity, uv);\n  vec3 vel = tmpVel.xyz;\n  float mass = tmpVel.w;\n\n  // decay\n  vel *= 0.9;\n\n  float mod = sin(time * 0.0001);\n  vel += -pos * 15.0 * snoise_2_3(pos*mod+5.0);\n\n  float outOfBounds = when_gt_1_8(length(pos), max);\n  vel = (outOfBounds * -pos * 0.15) + ((1.0 - outOfBounds) * vel);\n\n  gl_FragColor = vec4(vel, mass);\n}\n"
 
 /***/ })
 /******/ ]);

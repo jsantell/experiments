@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("three"));
+		module.exports = factory(require("three"), require("tween"));
 	else if(typeof define === 'function' && define.amd)
-		define(["three"], factory);
+		define(["three", "tween"], factory);
 	else if(typeof exports === 'object')
-		exports["app"] = factory(require("three"));
+		exports["app"] = factory(require("three"), require("tween"));
 	else
-		root["app"] = factory(root["THREE"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__) {
+		root["app"] = factory(root["THREE"], root["TWEEN"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__, __WEBPACK_EXTERNAL_MODULE_29__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 27);
+/******/ 	return __webpack_require__(__webpack_require__.s = 28);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -634,293 +634,24 @@ Stack.prototype.getPasses = function() {
 
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var THREE = __webpack_require__(0);
-var Pass = __webpack_require__(1);
-var Composer = __webpack_require__(5);
-var BlendMode = __webpack_require__(4).BlendMode;
-var FullBoxBlurPass = __webpack_require__(12);
-var BlendPass = __webpack_require__(15);
-var ZoomBlurPass = __webpack_require__(17);
-var BrightnessContrastPass = __webpack_require__(19);
-
-function MultiPassBloomPass(options) {
-  Pass.call(this);
-
-  options = options || {};
-
-  this.composer = null;
-
-  this.tmpTexture = this.getOfflineTexture( options.width, options.height, true );
-  this.blurPass = new FullBoxBlurPass(2);
-  this.blendPass = new BlendPass();
-  this.zoomBlur = new ZoomBlurPass();
-  this.brightnessContrastPass = new BrightnessContrastPass();
-
-  this.width = options.width || 512;
-  this.height = options.height || 512;
-
-  this.params.blurAmount = options.blurAmount || 2;
-  this.params.applyZoomBlur = options.applyZoomBlur || false;
-  this.params.zoomBlurStrength = options.zoomBlurStrength || 0.2;
-  this.params.useTexture = options.useTexture || false;
-  this.params.zoomBlurCenter = options.zoomBlurCenter || new THREE.Vector2(0.5, 0.5);
-  this.params.blendMode = options.blendMode || BlendMode.Screen;
-  this.params.glowTexture = null;
-}
-
-module.exports = MultiPassBloomPass;
-
-MultiPassBloomPass.prototype = Object.create(Pass.prototype);
-MultiPassBloomPass.prototype.constructor = MultiPassBloomPass;
-
-MultiPassBloomPass.prototype.run = function(composer) {
-  if (!this.composer) {
-    this.composer = new Composer(composer.renderer, {useRGBA: true});
-    this.composer.setSize(this.width, this.height);
-  }
-
-  this.composer.reset();
-
-  if (this.params.useTexture === true) {
-    this.composer.setSource(this.params.glowTexture);
-  } else {
-    this.composer.setSource(composer.output);
-  }
-
-  this.blurPass.params.amount = this.params.blurAmount;
-  this.composer.pass(this.blurPass);
-  
-  if (this.params.applyZoomBlur) {
-    this.zoomBlur.params.center.set(0.5, 0.5);
-    this.zoomBlur.params.strength = this.params.zoomBlurStrength;
-    this.composer.pass(this.zoomBlur);
-  }
-
-  if (this.params.useTexture === true) {
-    this.blendPass.params.mode = BlendMode.Screen;
-    this.blendPass.params.tInput = this.params.glowTexture;
-    composer.pass(this.blendPass);
-  }
-
-  this.blendPass.params.mode = this.params.blendMode;
-  this.blendPass.params.tInput2 = this.composer.output;
-  composer.pass(this.blendPass);
-};
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Pass = __webpack_require__(1);
-var BoxBlurPass = __webpack_require__(13);
-
-function FullBoxBlurPass(amount) {
-  Pass.call(this);
-
-  amount = amount || 2;
-
-  this.boxPass = new BoxBlurPass(amount, amount);
-  this.params.amount = amount;
-}
-
-module.exports = FullBoxBlurPass;
-
-FullBoxBlurPass.prototype = Object.create(Pass.prototype);
-FullBoxBlurPass.prototype.constructor = FullBoxBlurPass;
-
-FullBoxBlurPass.prototype.run = function(composer) {
-  var s = this.params.amount;
-  this.boxPass.params.delta.set( s, 0 );
-  composer.pass( this.boxPass );
-  this.boxPass.params.delta.set( 0, s );
-  composer.pass( this.boxPass );
-};
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var THREE = __webpack_require__(0);
-var Pass = __webpack_require__(1);
-var vertex = __webpack_require__(2);
-var fragment = __webpack_require__(14);
-
-function BoxBlurPass(deltaX, deltaY) {
-  Pass.call(this);
-
-  this.setShader(vertex, fragment);
-  this.params.delta = new THREE.Vector2(deltaX || 0, deltaY || 0);
-}
-
-module.exports = BoxBlurPass;
-
-BoxBlurPass.prototype = Object.create(Pass.prototype);
-BoxBlurPass.prototype.constructor = BoxBlurPass;
-
-BoxBlurPass.prototype.run = function(composer) {
-  this.shader.uniforms.delta.value.copy(this.params.delta);
-  composer.pass(this.shader);
-
-};
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
-module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nuniform sampler2D tInput;\nuniform vec2 delta;\nuniform vec2 resolution;\n\nvoid main() {\n\n  vec4 sum = vec4( 0. );\n  vec2 inc = delta / resolution;\n\n  sum += texture2D( tInput, ( vUv - inc * 4. ) ) * 0.051;\n  sum += texture2D( tInput, ( vUv - inc * 3. ) ) * 0.0918;\n  sum += texture2D( tInput, ( vUv - inc * 2. ) ) * 0.12245;\n  sum += texture2D( tInput, ( vUv - inc * 1. ) ) * 0.1531;\n  sum += texture2D( tInput, ( vUv + inc * 0. ) ) * 0.1633;\n  sum += texture2D( tInput, ( vUv + inc * 1. ) ) * 0.1531;\n  sum += texture2D( tInput, ( vUv + inc * 2. ) ) * 0.12245;\n  sum += texture2D( tInput, ( vUv + inc * 3. ) ) * 0.0918;\n  sum += texture2D( tInput, ( vUv + inc * 4. ) ) * 0.051;\n\n  gl_FragColor = sum;\n\n}"
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var THREE = __webpack_require__(0);
-var Pass = __webpack_require__(1);
-var vertex = __webpack_require__(2);
-var fragment = __webpack_require__(16);
-
-function BlendPass(options) {
-  Pass.call(this);
-
-  options = options || {};
-
-  this.setShader(vertex, fragment);
-
-  this.params.mode = options.mode || 1;
-  this.params.opacity = options.opacity || 1;
-  this.params.tInput2 = options.tInput2 || null;
-  this.params.resolution2 = options.resolution2 || new THREE.Vector2();
-  this.params.sizeMode = options.sizeMode || 1;
-  this.params.aspectRatio = options.aspectRatio || 1;
-  this.params.aspectRatio2 = options.aspectRatio2 || 1;
-}
-
-module.exports = BlendPass;
-
-BlendPass.prototype = Object.create(Pass.prototype);
-BlendPass.prototype.constructor = BlendPass;
-
-BlendPass.prototype.run = function(composer) {
-  this.shader.uniforms.mode.value = this.params.mode;
-  this.shader.uniforms.opacity.value = this.params.opacity;
-  this.shader.uniforms.tInput2.value = this.params.tInput2;
-  this.shader.uniforms.sizeMode.value = this.params.sizeMode;
-  this.shader.uniforms.aspectRatio.value = this.params.aspectRatio;
-  this.shader.uniforms.aspectRatio2.value = this.params.aspectRatio2;
-  composer.pass(this.shader);
-};
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports) {
-
-module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nuniform sampler2D tInput;\nuniform sampler2D tInput2;\nuniform vec2 resolution;\nuniform vec2 resolution2;\nuniform float aspectRatio;\nuniform float aspectRatio2;\nuniform int mode;\nuniform int sizeMode;\nuniform float opacity;\n\nvec2 vUv2;\n\nfloat applyOverlayToChannel( float base, float blend ) {\n\n  return (base < 0.5 ? (2.0 * base * blend) : (1.0 - 2.0 * (1.0 - base) * (1.0 - blend)));\n\n}\n\nfloat applySoftLightToChannel( float base, float blend ) {\n\n  return ((blend < 0.5) ? (2.0 * base * blend + base * base * (1.0 - 2.0 * blend)) : (sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend)));\n\n}\n\nfloat applyColorBurnToChannel( float base, float blend ) {\n\n  return ((blend == 0.0) ? blend : max((1.0 - ((1.0 - base) / blend)), 0.0));\n\n}\n\nfloat applyColorDodgeToChannel( float base, float blend ) {\n\n  return ((blend == 1.0) ? blend : min(base / (1.0 - blend), 1.0));\n\n}\n\nfloat applyLinearBurnToChannel( float base, float blend ) {\n\n  return max(base + blend - 1., 0.0 );\n\n}\n\nfloat applyLinearDodgeToChannel( float base, float blend ) {\n\n  return min( base + blend, 1. );\n\n}\n\nfloat applyLinearLightToChannel( float base, float blend ) {\n\n  return ( blend < .5 ) ? applyLinearBurnToChannel( base, 2. * blend ) : applyLinearDodgeToChannel( base, 2. * ( blend - .5 ) );\n\n}\n\nvoid main() {\n\n  vUv2 = vUv;\n  \n  if( sizeMode == 1 ) {\n    \n    if( aspectRatio2 > aspectRatio ) {\n      vUv2.x = vUv.x * aspectRatio / aspectRatio2;\n      vUv2.x += .5 * ( 1. - aspectRatio / aspectRatio2 ); \n      vUv2.y = vUv.y;\n    }\n\n    if( aspectRatio2 < aspectRatio ) {\n      vUv2.x = vUv.x;\n      vUv2.y = vUv.y * aspectRatio2 / aspectRatio;\n      vUv2.y += .5 * ( 1. - aspectRatio2 / aspectRatio );\n    }\n\n  }\n\n  vec4 base = texture2D( tInput, vUv );\n  vec4 blend = texture2D( tInput2, vUv2 );\n\n  if( mode == 1 ) { // normal\n\n    gl_FragColor = base;\n    gl_FragColor.a *= opacity;\n    return;\n\n  }\n\n  if( mode == 2 ) { // dissolve\n\n  }\n\n  if( mode == 3 ) { // darken\n\n    gl_FragColor = min( base, blend );\n    return;\n\n  }\n\n  if( mode == 4 ) { // multiply\n\n    gl_FragColor = base * blend;\n    return;\n\n  }\n\n  if( mode == 5 ) { // color burn\n\n    gl_FragColor = vec4(\n      applyColorBurnToChannel( base.r, blend.r ),\n      applyColorBurnToChannel( base.g, blend.g ),\n      applyColorBurnToChannel( base.b, blend.b ),\n      applyColorBurnToChannel( base.a, blend.a )\n    );\n    return;\n\n  }\n\n  if( mode == 6 ) { // linear burn\n\n    gl_FragColor = max(base + blend - 1.0, 0.0);\n    return;\n\n  }\n\n  if( mode == 7 ) { // darker color\n\n  }\n\n  if( mode == 8 ) { // lighten\n\n    gl_FragColor = max( base, blend );\n    return;\n\n  }\n\n  if( mode == 9 ) { // screen\n\n    gl_FragColor = (1.0 - ((1.0 - base) * (1.0 - blend)));\n    gl_FragColor = gl_FragColor * opacity + base * ( 1. - opacity );\n    return;\n\n  }\n\n  if( mode == 10 ) { // color dodge\n\n    gl_FragColor = vec4(\n      applyColorDodgeToChannel( base.r, blend.r ),\n      applyColorDodgeToChannel( base.g, blend.g ),\n      applyColorDodgeToChannel( base.b, blend.b ),\n      applyColorDodgeToChannel( base.a, blend.a )\n    );\n    return;\n\n  }\n\n  if( mode == 11 ) { // linear dodge\n\n    gl_FragColor = min(base + blend, 1.0);\n    return;\n\n  }\n\n  if( mode == 12 ) { // lighter color\n\n  }\n\n  if( mode == 13 ) { // overlay\n\n    gl_FragColor = gl_FragColor = vec4( \n      applyOverlayToChannel( base.r, blend.r ),\n      applyOverlayToChannel( base.g, blend.g ),\n      applyOverlayToChannel( base.b, blend.b ),\n      applyOverlayToChannel( base.a, blend.a )\n    );\n    gl_FragColor = gl_FragColor * opacity + base * ( 1. - opacity );\n  \n    return;\n\n  }\n\n  if( mode == 14 ) { // soft light\n\n    gl_FragColor = vec4( \n      applySoftLightToChannel( base.r, blend.r ),\n      applySoftLightToChannel( base.g, blend.g ),\n      applySoftLightToChannel( base.b, blend.b ),\n      applySoftLightToChannel( base.a, blend.a )\n    );\n    return;\n\n  }\n\n  if( mode == 15 ) { // hard light\n\n    gl_FragColor = vec4( \n      applyOverlayToChannel( base.r, blend.r ),\n      applyOverlayToChannel( base.g, blend.g ),\n      applyOverlayToChannel( base.b, blend.b ),\n      applyOverlayToChannel( base.a, blend.a )\n    );\n    gl_FragColor = gl_FragColor * opacity + base * ( 1. - opacity );\n    return;\n\n  }\n\n  if( mode == 16 ) { // vivid light\n\n  }\n\n  if( mode == 17 ) { // linear light\n\n    gl_FragColor = vec4( \n      applyLinearLightToChannel( base.r, blend.r ),\n      applyLinearLightToChannel( base.g, blend.g ),\n      applyLinearLightToChannel( base.b, blend.b ),\n      applyLinearLightToChannel( base.a, blend.a )\n    );\n    return;\n\n  }\n\n  if( mode == 18 ) { // pin light\n\n  }\n\n  if( mode == 19 ) { // hard mix\n\n  }\n\n  if( mode == 20 ) { // difference\n\n    gl_FragColor = abs( base - blend );\n    gl_FragColor.a = base.a + blend.b;\n    return;\n\n  }\n\n  if( mode == 21 ) { // exclusion\n\n    gl_FragColor = base + blend - 2. * base * blend;\n    \n  }\n\n  if( mode == 22 ) { // substract\n\n  }\n\n  if( mode == 23 ) { // divide\n\n  }\n\n  gl_FragColor = vec4( 1., 0., 1., 1. );\n\n}"
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var THREE = __webpack_require__(0);
-var Pass = __webpack_require__(1);
-var vertex = __webpack_require__(2);
-var fragment = __webpack_require__(18);
-
-function ZoomBlurPass(options) {
-  Pass.call(this);
-
-  options = options || {};
-
-  this.setShader(vertex, fragment);
-
-  this.params.center = new THREE.Vector2(options.centerX || 0.5, options.centerY || 0.5);
-  this.params.strength = options.strength || 0.1;
-}
-
-module.exports = ZoomBlurPass;
-
-ZoomBlurPass.prototype = Object.create(Pass.prototype);
-ZoomBlurPass.prototype.constructor = ZoomBlurPass;
-
-ZoomBlurPass.prototype.run = function(composer) {
-  this.shader.uniforms.center.value.set(composer.width * this.params.center.x, composer.height * this.params.center.y);
-  this.shader.uniforms.strength.value = this.params.strength;
-  composer.pass(this.shader);
-};
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports) {
-
-module.exports = "#define GLSLIFY 1\nuniform sampler2D tInput;\nuniform vec2 center;\nuniform float strength;\nuniform vec2 resolution;\nvarying vec2 vUv;\n\nfloat random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,scale))*43758.5453+seed);}\n\nvoid main(){\n  vec4 color=vec4(0.0);\n  float total=0.0;\n  vec2 toCenter=center-vUv*resolution;\n  float offset=random(vec3(12.9898,78.233,151.7182),0.0);\n  for(float t=0.0;t<=40.0;t++){\n    float percent=(t+offset)/40.0;\n    float weight=4.0*(percent-percent*percent);\n    vec4 sample=texture2D(tInput,vUv+toCenter*percent*strength/resolution);\n    sample.rgb*=sample.a;\n    color+=sample*weight;\n    total+=weight;\n  }\n  gl_FragColor=color/total;\n  gl_FragColor.rgb/=gl_FragColor.a+0.00001;\n}"
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Pass = __webpack_require__(1);
-var vertex = __webpack_require__(2);
-var fragment = __webpack_require__(20);
-
-function BrightnessContrastPass(brightness, contrast) {
-  Pass.call(this);
-
-  this.setShader(vertex, fragment);
-
-  this.params.brightness = brightness || 1;
-  this.params.contrast = contrast || 1;
-}
-
-module.exports = BrightnessContrastPass;
-
-BrightnessContrastPass.prototype = Object.create(Pass.prototype);
-BrightnessContrastPass.prototype.constructor = BrightnessContrastPass;
-
-BrightnessContrastPass.prototype.run = function(composer) {
-  this.shader.uniforms.brightness.value = this.params.brightness;
-  this.shader.uniforms.contrast.value = this.params.contrast;
-  composer.pass(this.shader);
-};
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports) {
-
-module.exports = "#define GLSLIFY 1\nuniform float brightness;\nuniform float contrast;\nuniform sampler2D tInput;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n  vec3 color = texture2D(tInput, vUv).rgb;\n  vec3 colorContrasted = (color) * contrast;\n  vec3 bright = colorContrasted + vec3(brightness,brightness,brightness);\n  gl_FragColor.rgb = bright;\n  gl_FragColor.a = 1.;\n\n}"
-
-/***/ }),
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */,
 /* 21 */,
 /* 22 */,
 /* 23 */,
 /* 24 */,
 /* 25 */,
 /* 26 */,
-/* 27 */
+/* 27 */,
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -934,17 +665,27 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _three = __webpack_require__(0);
 
+var _tween = __webpack_require__(29);
+
 var _ThreeApp2 = __webpack_require__(6);
 
 var _ThreeApp3 = _interopRequireDefault(_ThreeApp2);
+
+var _frag = __webpack_require__(30);
+
+var _frag2 = _interopRequireDefault(_frag);
+
+var _vert = __webpack_require__(31);
+
+var _vert2 = _interopRequireDefault(_vert);
 
 var _wagner = __webpack_require__(4);
 
 var _wagner2 = _interopRequireDefault(_wagner);
 
-var _MultiPassBloomPass = __webpack_require__(11);
+var _VignettePass = __webpack_require__(32);
 
-var _MultiPassBloomPass2 = _interopRequireDefault(_MultiPassBloomPass);
+var _VignettePass2 = _interopRequireDefault(_VignettePass);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -954,8 +695,25 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var count = 400;
-var points = 100;
+var ROTATION_DELAY = 100;
+var ROTATION_SPEED = 800;
+var DIMENSIONS = 3;
+var CUBE_SCALE = 1.0;
+var CUBE_DISTANCE_SCALE = 1.0;
+var EASING = _tween.Easing.Back.Out;
+var BG_COLOR = 0x333333;
+
+// Randomly return val1 or val2
+var or = function or(val1, val2) {
+  return Math.random() > 0.5 ? val1 : val2;
+};
+// Pass in an axis ('x', 'y', 'z') and return a different axis
+var getDifferentAxis = function getDifferentAxis(axis) {
+  return axis === 'x' ? or('y', 'z') : axis === 'y' ? or('x', 'z') : or('y', 'x');
+};
+var getRandomAxis = function getRandomAxis() {
+  return ['x', 'y', 'z'][Math.floor(Math.random() * 3)];
+};
 
 var Experiment = function (_ThreeApp) {
   _inherits(Experiment, _ThreeApp);
@@ -969,52 +727,165 @@ var Experiment = function (_ThreeApp) {
   _createClass(Experiment, [{
     key: 'init',
     value: function init() {
-      this.renderer.setClearColor(0x111111);
+      this.renderer.setClearColor(BG_COLOR);
       this.curves = [];
 
-      for (var i = 0; i < count; i++) {
-        var curve = new _three.EllipseCurve(0, 0, 2, 2, 0, 2 * Math.PI, false, 0);
-        var path = new _three.Path(curve.getPoints(points));
-        var geo = path.createPointsGeometry(points);
-        var c = i / count * 360 / 1.9;
-        var mat = new _three.LineBasicMaterial({
-          color: new _three.Color('hsl(' + c + ', 100%, 50%)'),
-          transparent: true,
-          depthWrite: false,
-          blending: _three.AdditiveBlending,
-          opacity: 0.4
-        });
-        var line = new _three.Line(geo, mat);
-        this.curves.push(line);
-        this.scene.add(line);
-      }
+      this.cubeGroup = new _three.Object3D();
+      this.rotationHelper = new _three.Object3D();
+      this.cubeGroup.add(this.rotationHelper);
+      this.scene.add(this.cubeGroup);
+      this.material = new _three.ShaderMaterial({
+        vertexShader: _vert2.default,
+        fragmentShader: _frag2.default,
+        uniforms: {
+          fgColor: { value: new _three.Color(0xffffff) },
+          bgColor: { value: new _three.Color(BG_COLOR) }
+        }
+      });
 
-      this.camera.position.set(0, 0, 5);
+      this.createCubes();
 
       this.pivot = new _three.Object3D();
-      this.pivot.add(this.camera);
       this.scene.add(this.pivot);
+      this.camera.lookAt(new _three.Vector3());
+      this.pivot.add(this.camera);
+      this.camera.position.set(4, 4, 4);
 
+      this.lastRotation = 0;
       this.composer = new _wagner2.default.Composer(this.renderer);
-      this.pass = new _MultiPassBloomPass2.default({
-        zoomBlurStrength: 0.05,
-        applyZoomBlur: true,
-        blurAmount: 0.2
+      this.pass = new _VignettePass2.default(0.9, 1.0);
+    }
+  }, {
+    key: 'createCubes',
+    value: function createCubes() {
+      this.cubes = [];
+
+      /**
+       *  Store cubes in plane, row, columns, below
+       *  is a face
+       *
+       *  z,y,x
+       *
+       *  0,0,0  0,0,1  0,0,2
+       *  0,1,0  0,1,1  0,1,2
+       *  0,2,0  0,2,1  0,2,2
+       *
+       */
+      var solid = this.material;
+      var transparent = new _three.MeshBasicMaterial({ opacity: 0, transparent: true });
+      var last = DIMENSIONS - 1;
+      for (var z = 0; z < DIMENSIONS; z++) {
+        var plane = this.cubes[z] = [];
+        for (var y = 0; y < DIMENSIONS; y++) {
+          var row = plane[y] = [];
+          for (var x = 0; x < DIMENSIONS; x++) {
+            var cube = new _three.Mesh(new _three.BoxGeometry(CUBE_SCALE, CUBE_SCALE, CUBE_SCALE), [x === last ? solid : transparent, // bot right
+            x === 0 ? solid : transparent, // back left
+            y === last ? solid : transparent, // top
+            y === 0 ? solid : transparent, // bottom
+            z === last ? solid : transparent, // bot left
+            z === 0 ? solid : transparent]);
+            row[x] = cube;
+            this.cubeGroup.add(cube);
+
+            var half = DIMENSIONS % 2 === 0 ? DIMENSIONS / 2 - 0.5 : Math.floor(DIMENSIONS / 2);
+            cube.position.set((x - half) * CUBE_DISTANCE_SCALE, (y - half) * CUBE_DISTANCE_SCALE, (z - half) * CUBE_DISTANCE_SCALE);
+          }
+        }
+      }
+    }
+  }, {
+    key: 'getCubesBySlice',
+    value: function getCubesBySlice(axis, index) {
+      // I'm sure there's a better way for this
+      var cubes = [];
+      for (var z = 0; z < DIMENSIONS; z++) {
+        for (var y = 0; y < DIMENSIONS; y++) {
+          for (var x = 0; x < DIMENSIONS; x++) {
+            var r = axis === 'z' ? z : axis === 'y' ? y : x;
+            if (r === index) {
+              var cube = this.cubes[z][y][x];
+              cubes.push(cube);
+            }
+          }
+        }
+      }
+      return cubes;
+    }
+  }, {
+    key: 'rotateCubes',
+    value: function rotateCubes(axis, index, dir) {
+      var _this2 = this;
+
+      var cubes = this.getCubesBySlice(axis, index);
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = cubes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var cube = _step.value;
+
+          this.cubeGroup.remove(cube);
+          this.rotationHelper.add(cube);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      this.cubeTween = this.rotate(this.rotationHelper, axis, dir);
+      this.cubeTween.onComplete(function () {
+        cubes.forEach(function (c) {
+          _this2.cubeGroup.add(c);
+          _this2.rotationHelper.remove(c);
+        });
+        _this2.rotationHelper.rotation.set(0, 0, 0);
+        _this2.cubeTween = null;
       });
+    }
+  }, {
+    key: 'rotate',
+    value: function rotate(object, axis, dir, easing) {
+      var startRotation = object.rotation[axis];
+
+      return new _tween.Tween({ x: 0 }).to({ x: 1 }, ROTATION_SPEED).onUpdate(function (value) {
+        object.rotation[axis] = startRotation + value * Math.PI / 2 * dir;
+      }).easing(easing || EASING).start();
     }
   }, {
     key: 'update',
     value: function update(t, delta) {
-      for (var i = 0; i < count; i++) {
-        var curve = this.curves[i];
-        var pct = i / count;
-        var scale = (Math.sin(t * 0.0001 + pct * Math.PI * 2) + 1) / 2;
-        curve.scale.set(scale, scale, scale);
-        curve.rotation.z = t * 0.00001 + pct * 2;
-        curve.rotation.y = t * 0.001 + pct * Math.PI * 2;
-        curve.rotation.x = t * 0.001 + pct * Math.PI * 2 + Math.PI / 2;
+      var _this3 = this;
+
+      if (this.lastRotation + ROTATION_SPEED + ROTATION_DELAY < t && !this.camTween && !this.cubeTween) {
+        var index = Math.floor(Math.random() * 3);
+        var axis = getRandomAxis();
+        var dir = or(-1, 1);
+        // Rotate a slice of cubes on `axis` at `index`
+        this.rotateCubes(axis, index, dir);
+        // Also rotate the camera randomly on a different access
+        this.camTween = this.rotate(this.pivot, getRandomAxis(), dir * -1, _tween.Easing.Cubic.Out);
+        this.camTween.onComplete(function () {
+          return _this3.camTween = null;
+        });
+
+        this.lastRotation = t;
       }
-      this.pivot.rotation.y = -t * 0.001;
+      this.camera.lookAt(new _three.Vector3());
+      this.camera.updateMatrixWorld();
+
+      (0, _tween.update)();
     }
   }, {
     key: 'render',
@@ -1031,6 +902,62 @@ var Experiment = function (_ThreeApp) {
 }(_ThreeApp3.default);
 
 exports.default = new Experiment();
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_29__;
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports) {
+
+module.exports = "#define GLSLIFY 1\nuniform vec3 fgColor;\nuniform vec3 bgColor;\n\nvarying vec2 vUv;\n\nfloat when_gt_1_0(float x, float y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec2 when_gt_1_0(vec2 x, vec2 y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec3 when_gt_1_0(vec3 x, vec3 y) {\n  return max(sign(x - y), 0.0);\n}\n\nvec4 when_gt_1_0(vec4 x, vec4 y) {\n  return max(sign(x - y), 0.0);\n}\n\n\n\n\nvoid main() {\n  float limit = 0.1;\n  vec3 color = fgColor;\n\n  float isTiled = 0.0;\n  isTiled += when_gt_1_0(limit, vUv.x);\n  isTiled += when_gt_1_0(limit, vUv.y);\n  isTiled += when_gt_1_0(vUv.x, 1.0 - limit);\n  isTiled += when_gt_1_0(vUv.y, 1.0 - limit);\n\n  color = (step(1.0, isTiled) * bgColor) + ((1.0 - step(1.0, isTiled)) * fgColor);\n  gl_FragColor = vec4(color, 1.0);\n}\n"
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports) {
+
+module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\n\nvoid main() {\n  vUv = uv;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n}\n"
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Pass = __webpack_require__(1);
+var vertex = __webpack_require__(2);
+var fragment = __webpack_require__(33);
+
+function VignettePass(boost, reduction) {
+  Pass.call(this);
+
+  this.setShader(vertex, fragment);
+
+  this.params.boost = boost || 2;
+  this.params.reduction = reduction || 2;
+}
+
+module.exports = VignettePass;
+
+VignettePass.prototype = Object.create(Pass.prototype);
+VignettePass.prototype.constructor = VignettePass;
+
+VignettePass.prototype.run = function(composer) {
+  this.shader.uniforms.boost.value = this.params.boost;
+  this.shader.uniforms.reduction.value = this.params.reduction;
+  composer.pass(this.shader);
+};
+
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
+
+module.exports = "#define GLSLIFY 1\nvarying vec2 vUv;\nuniform sampler2D tInput;\nuniform vec2 resolution;\n\nuniform float reduction;\nuniform float boost;\n\nvoid main() {\n\n  vec4 color = texture2D( tInput, vUv );\n\n  vec2 center = resolution * 0.5;\n  float vignette = distance( center, gl_FragCoord.xy ) / resolution.x;\n  vignette = boost - vignette * reduction;\n\n  color.rgb *= vignette;\n  gl_FragColor = color;\n\n}"
 
 /***/ })
 /******/ ]);
